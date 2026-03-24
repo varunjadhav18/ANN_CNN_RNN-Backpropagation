@@ -1,343 +1,275 @@
-# Backpropagation in ANN, CNN, and RNN
+# Neural Network Backpropagation (ANN, CNN, RNN)
 
-This repository demonstrates how **Backpropagation** works in three major neural network architectures:
+This repository demonstrates **how backpropagation works internally** in three types of neural networks:
 
-- Artificial Neural Network (**ANN**)
-- Convolutional Neural Network (**CNN**)
-- Recurrent Neural Network (**RNN**)
+* Artificial Neural Network (ANN)
+* Convolutional Neural Network (CNN)
+* Recurrent Neural Network (RNN)
 
-The project explains the **mathematical formulas, algorithms, and gradient calculations** used during training.
+Unlike typical implementations, this project explicitly prints:
 
----
+* Predictions
+* Loss values
+* Gradients
+* Weights **before and after updates**
 
-# Table of Contents
-
-1. Introduction  
-2. Backpropagation Overview  
-3. Artificial Neural Network (ANN)  
-4. Convolutional Neural Network (CNN)  
-5. Recurrent Neural Network (RNN)  
-6. Comparison  
-7. Requirements  
-8. How to Run  
+This helps in understanding *how learning actually happens*.
 
 ---
 
-# 1. Introduction
+# 📌 1. Artificial Neural Network (ANN)
 
-Neural networks learn by adjusting weights to minimize prediction error.  
-This process is done using **Backpropagation with Gradient Descent**.
+## Overview
 
-The objective is to minimize the loss function:
+The ANN implemented here is a simple **2-layer feedforward network** trained on a small dataset.
 
-L = (1/N) Σ (y − ŷ)²
+### Architecture
 
-Where:
-
-- y = true output  
-- ŷ = predicted output  
-- N = number of samples  
+* Input layer: 2 neurons
+* Hidden layer: 3 neurons (Sigmoid activation)
+* Output layer: 1 neuron (Sigmoid)
 
 ---
 
-# 2. Backpropagation Overview
+## Forward Pass
 
-Backpropagation has two phases:
+Steps:
 
-## Forward Propagation
-The input passes through layers to generate predictions.
+1. Compute hidden layer:
+   z1 = X · W1 + b1
+   a1 = sigmoid(z1)
 
-## Backward Propagation
-The error is propagated backward to update weights.
-
-Weight update rule:
-
-W_new = W − η * (∂L / ∂W)
-
-Where:
-
-- W = weight  
-- η = learning rate  
-- L = loss function  
-
----
-
-# 3. Artificial Neural Network (ANN)
-
-## Architecture
-
-Input Layer → Hidden Layer → Output Layer
-
----
-
-## Forward Propagation
-
-Hidden layer calculation:
-
-Z1 = W1X + b1
-
-Activation function:
-
-A1 = f(Z1)
-
-Output layer:
-
-Z2 = W2A1 + b2
-
-Prediction:
-
-ŷ = f(Z2)
+2. Compute output:
+   z2 = a1 · W2 + b2
+   y_pred = sigmoid(z2)
 
 ---
 
 ## Loss Function
 
-Mean Squared Error:
+Mean Squared Error (MSE):
 
-L = 1/2 (y − ŷ)²
-
----
-
-## Backpropagation Calculations
-
-Output layer error:
-
-δ2 = (ŷ − y) * f'(Z2)
-
-Gradient for output weights:
-
-∂L/∂W2 = δ2 * A1
-
-Hidden layer error:
-
-δ1 = (W2 * δ2) * f'(Z1)
-
-Gradient for hidden weights:
-
-∂L/∂W1 = δ1 * X
+Loss = mean((y - y_pred)²)
 
 ---
 
-## ANN Training Algorithm
+## Backpropagation
 
-1. Initialize weights randomly  
-2. Perform forward propagation  
-3. Compute loss  
-4. Calculate gradients using backpropagation  
-5. Update weights using gradient descent  
-6. Repeat until convergence  
+Gradients are computed using the chain rule:
 
----
+* Output layer:
+  dL/dz2 = (y_pred - y) * sigmoid_derivative(y_pred)
 
-# 4. Convolutional Neural Network (CNN)
-
-CNNs are mainly used for **image data processing**.
+* Hidden layer:
+  dL/dz1 = (dL/dz2 · W2ᵀ) * sigmoid_derivative(a1)
 
 ---
 
-## Architecture
+## Weight Updates
 
-Input Image  
-→ Convolution Layer  
-→ Activation (ReLU)  
-→ Pooling Layer  
-→ Fully Connected Layer  
-→ Output
+Weights are updated using gradient descent:
+
+W = W - learning_rate * gradient
 
 ---
 
-## Convolution Operation
+## Output Explanation
 
-Feature map calculation:
+Each epoch prints:
 
-F(i,j) = Σ Σ X(i+k, j+l) * K(k,l)
-
-Where:
-
-- X = input image  
-- K = convolution filter  
+* Loss value
+* Predictions
+* Weights before update
+* Weights after update
 
 ---
 
-## Activation Function
+# 📌 2. Convolutional Neural Network (CNN)
 
-ReLU:
+## Overview
 
-f(x) = max(0, x)
+This is a minimal CNN using PyTorch to demonstrate backpropagation through:
 
----
-
-## Loss Function
-
-Cross Entropy Loss:
-
-L = − Σ y log(ŷ)
-
----
-
-## Backpropagation in CNN
-
-Gradient of filter:
-
-∂L/∂K = X * δ
-
-Gradient of input:
-
-∂L/∂X = δ * K
-
-Where:
-
-- δ = error gradient  
-- * = convolution operation  
-
----
-
-## CNN Training Algorithm
-
-1. Initialize convolution filters  
-2. Perform convolution operation  
-3. Apply activation function  
-4. Apply pooling  
-5. Flatten feature maps  
-6. Feed into fully connected layer  
-7. Compute loss  
-8. Backpropagate gradients through layers  
-9. Update filters and weights  
-
----
-
-# 5. Recurrent Neural Network (RNN)
-
-RNNs process **sequential data** such as text, speech, and time series.
+* Convolution layer
+* Fully connected layer
 
 ---
 
 ## Architecture
 
-At time step t:
-
-Input → Hidden State → Output  
-        ↑  
-     Previous Hidden State
-
----
-
-## Hidden State Calculation
-
-h_t = f(Wx * x_t + Wh * h_(t-1) + b)
-
-Where:
-
-- x_t = input at time t  
-- h_t = hidden state  
-- Wx = input weight matrix  
-- Wh = recurrent weight matrix  
+* Conv2D (1 filter, kernel size 2×2)
+* ReLU activation
+* Flatten layer
+* Fully connected layer
+* Sigmoid output
 
 ---
 
-## Output Calculation
+## Forward Pass
 
-y_t = Wy * h_t
+1. Apply convolution
+2. Apply ReLU activation
+3. Flatten output
+4. Fully connected layer
+5. Sigmoid activation
 
 ---
 
-## Loss Function
+## Backpropagation
 
-L = Σ (y_t − ŷ_t)²
+PyTorch automatically computes gradients using **autograd**, but we explicitly print them:
+
+* `model.conv.weight.grad` → gradient of convolution filters
+
+---
+
+## Output Explanation
+
+Each epoch prints:
+
+* Loss
+* Prediction
+* Convolution weights (before update)
+* Gradients of weights
+* Convolution weights (after update)
+
+---
+
+## Key Insight
+
+CNN backpropagation updates **filters (kernels)** instead of simple weight matrices.
+
+---
+
+# 📌 3. Recurrent Neural Network (RNN)
+
+## Overview
+
+This example demonstrates **Backpropagation Through Time (BPTT)** using a simple RNN.
+
+---
+
+## Architecture
+
+* RNN layer (hidden size = 2)
+* Fully connected output layer
+* Sigmoid activation
+
+---
+
+## Forward Pass
+
+1. Input sequence is passed through RNN
+2. Hidden states are computed at each time step
+3. Only the **last hidden state** is used for prediction
 
 ---
 
 ## Backpropagation Through Time (BPTT)
 
-Error at time t:
+Unlike ANN/CNN:
 
-δ_t = (ŷ_t − y_t) * f'(h_t)
-
-Gradient for recurrent weights:
-
-∂L/∂Wh = Σ δ_t * h_(t-1)
-
-Gradient for input weights:
-
-∂L/∂Wx = Σ δ_t * x_t
+* Gradients are propagated **across time steps**
+* Each time step contributes to the final loss
 
 ---
 
-## RNN Training Algorithm
+## Output Explanation
 
-1. Initialize weights  
-2. Perform forward propagation through time  
-3. Compute total loss  
-4. Apply Backpropagation Through Time (BPTT)  
-5. Compute gradients for each timestep  
-6. Update weights using gradient descent  
+Each epoch prints:
 
----
-
-# 6. Comparison
-
-| Model | Data Type | Backpropagation Method |
-|------|-----------|------------------------|
-| ANN | Tabular Data | Standard Backpropagation |
-| CNN | Image Data | Convolution Backpropagation |
-| RNN | Sequential Data | Backpropagation Through Time |
+* Loss
+* Prediction
+* RNN weights before update
+* Gradients
+* Updated weights
 
 ---
 
-# 7. Requirements
+## Key Insight
 
-Python 3.x
+RNN learns by adjusting weights based on:
 
-Required libraries:
+* Current input
+* Previous hidden states
 
-- numpy
-- torch
+---
+
+# 🔍 What Makes This Project Special
+
+✔ Shows **internal learning mechanics**
+✔ Prints **real weight updates**
+✔ Displays **gradients explicitly**
+✔ Covers **three major neural network types**
+
+---
+
+# 📊 Example Outputs
+
+You will see outputs like:
+
+* Loss decreasing over epochs
+* Predictions getting closer to actual values
+* Gradients indicating direction of learning
+* Weights being updated step-by-step
+
+---
+
+# 🚀 How to Run
+
+## Requirements
+
+* Python 3.x
+* NumPy
+* PyTorch
 
 Install dependencies:
 
+```bash
 pip install numpy torch
+```
+
+Run the scripts:
+
+```bash
+python ann.py
+python cnn.py
+python rnn.py
+```
 
 ---
 
-# 8. How to Run
+# 🧠 Learning Outcomes
 
-Clone the repository:
+After running this code, you will understand:
 
-git clone https://github.com/yourusername/backpropagation-models
-
-Move into project folder:
-
-cd backpropagation-models
-
-Run ANN:
-
-python ann_backpropagation.py
-
-Run CNN:
-
-python cnn_backpropagation.py
-
-Run RNN:
-
-python rnn_backpropagation.py
+* How forward propagation works
+* How gradients are computed
+* How weights are updated
+* Difference between ANN, CNN, and RNN training
 
 ---
 
-# Project Structure
+# 📌 Summary
 
-backpropagation-models/
-
-ann_backpropagation.py  
-cnn_backpropagation.py  
-rnn_backpropagation.py  
-README.md
+| Model | Key Feature            | Backpropagation Type  |
+| ----- | ---------------------- | --------------------- |
+| ANN   | Fully connected layers | Standard backprop     |
+| CNN   | Convolution filters    | Spatial backprop      |
+| RNN   | Sequential data        | Backprop Through Time |
 
 ---
 
-# References
+# 📚 Conclusion
 
-- Deep Learning – Ian Goodfellow  
-- Stanford CS231n Notes  
-- Pattern Recognition and Machine Learning – Christopher Bishop  
+This project is designed for **deep understanding**, not just usage.
+
+If you want to truly understand neural networks, inspecting:
+
+* weights
+* gradients
+* predictions
+
+is essential — and this repo gives you exactly that.
 
 ---
